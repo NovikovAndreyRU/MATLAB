@@ -1,180 +1,61 @@
-%13 Вариант
-
-numMatrix = imnoise2('uniform',800,800,0,1); %Задание 1-2
-figure;
-imshow(numMatrix);
-
-myHist = figure; %Задание 3
-imhist(numMatrix);
-fpath = 'DIP\Lab2';
-saveas(myHist, fullfile(fpath,'histogram'), 'svg');
-
-I = mat2gray([1,1,0,1,1;
-               1,0,0,0,1;
-               0,0,0,0,0]); %Задание 4
-imwrite(I, fullfile(fpath,'small.bmp'));
-
-J1 = imresize(I, 100, 'nearest'); %Задание 5
-J2 = imresize(J1, 0.5, 'bilinear');
-imwrite(J2, fullfile(fpath,'resize.bmp'));
-
-numMatrix = imnoise2('uniform',400,400,0,1); %Задание 6
-H1 = mat2gray([1,0,1;
-               0,0,0;
-               1,0,1;]); 
-H2 = mat2gray([1,1,1;
-               0,0,0;
-               1,1,1;]);
-figure;
-subplot(3,3,1), subimage(H1);
-subplot(3,3,2), subimage(numMatrix);
-subplot(3,3,3), subimage(numMatrix);
-subplot(3,3,4), subimage(numMatrix);
-subplot(3,3,5), subimage(numMatrix);
-subplot(3,3,6), subimage(numMatrix);
-subplot(3,3,7), subimage(numMatrix);
-subplot(3,3,8), subimage(numMatrix);
-subplot(3,3,9), subimage(H2);
-
-C = figure; %Задание 7
-subplot(3,3,1),subimage(numMatrix);
-subplot(3,3,2),subimage(numMatrix);
-subplot(3,3,3),subimage(H1);
-subplot(3,3,4),subimage(numMatrix);
-subplot(3,3,5),subimage(numMatrix);
-subplot(3,3,6),subimage(numMatrix);
-subplot(3,3,7),subimage(H2);
-subplot(3,3,8),subimage(numMatrix);
-subplot(3,3,9),subimage(numMatrix);
-saveas(C, fullfile(fpath,'zerkalo(7)'), 'svg');
-
-C = figure; %Задание 8
-subplot(3,3,1),subimage(H2);
-subplot(3,3,2),subimage(numMatrix);
-subplot(3,3,3),subimage(numMatrix);
-subplot(3,3,4),subimage(numMatrix);
-subplot(3,3,5),subimage(numMatrix);
-subplot(3,3,6),subimage(numMatrix);
-subplot(3,3,7),subimage(numMatrix);
-subplot(3,3,8),subimage(numMatrix);
-subplot(3,3,9),subimage(H1);
-saveas(C, fullfile(fpath,'return(8)'), 'svg');
-
-
-
-
-
-%imnoise из функции
-function R = imnoise2(type, M, N, a, b)
-%IMNOISE2 Generates an array of random numbers with specified PDF.
-%   R = IMNOISE2(TYPE, M, N, A, B) generates an array, R, of size
-%   M-by-N, whose elements are random numbers of the specified TYPE
-%   with parameters A and B. If only TYPE is included in the
-%   input argument list, a  single random number of the specified
-%   TYPE and default parameters shown below is generated. If only
-%   TYPE, M, and N are provided, the default parameters shown below
-%   are used.  If M = N = 1, IMNOISE2 generates a single random
-%   number of the specified TYPE and parameters A and B.
-%
-%   Valid values for TYPE and parameters A and B are:
-% 
-%   'uniform'       Uniform random numbers in the interval (A, B).
-%                   The default values are (0, 1).  
-%   'gaussian'      Gaussian random numbers with mean A and standard
-%                   deviation B. The default values are A = 0, B = 1.
-%   'salt & pepper' Salt and pepper numbers of amplitude 0 with
-%                   probability Pa = A, and amplitude 1 with
-%                   probability Pb = B. The default values are Pa =
-%                   Pb = A = B = 0.05.  Note that the noise has
-%                   values 0 (with probability Pa = A) and 1 (with
-%                   probability Pb = B), so scaling is necessary if
-%                   values other than 0 and 1 are required. The noise
-%                   matrix R is assigned three values. If R(x, y) =
-%                   0, the noise at (x, y) is pepper (black).  If
-%                   R(x, y) = 1, the noise at (x, y) is salt
-%                   (white). If R(x, y) = 0.5, there is no noise
-%                   assigned to coordinates (x, y). 
-%   'lognormal'     Lognormal numbers with offset A and shape
-%                   parameter B. The defaults are A = 1 and B =
-%                   0.25.
-%   'rayleigh'      Rayleigh noise with parameters A and B. The
-%                   default values are A = 0 and B = 1. 
-%   'exponential'   Exponential random numbers with parameter A.  The
-%                   default is A = 1.
-%   'erlang'        Erlang (gamma) random numbers with parameters A
-%                   and B.  B must be a positive integer. The
-%                   defaults are A = 2 and B = 5.  Erlang random
-%                   numbers are approximated as the sum of B
-%                   exponential random numbers.
-
-%   Copyright 2002-2006 R. C. Gonzalez, R. E. Woods, & S. L. Eddins
-%   Digital Image Processing Using MATLAB, Prentice-Hall, 2004
-%   $Revision: 1.6 $  $Date: 2006/07/15 20:44:52 $
-
-% Set default values.
-if nargin == 1
-   a = 0; b = 1;
-   M = 1; N = 1;
-elseif nargin == 3
-   a = 0; b = 1;
+n_image8 = genImgWithNoise(zeros(800), 1);%For more information watch "Functions" in the end of the file
+path = 'DIP\Lab2\';%Path to save dir
+n_hist_fig = figure('visible','off');%Selector for Hist figure
+imhist(n_image8);%Generate histogram for 8 bit IMG
+ylim([1400,2400]);
+if ~exist(path, 'dir')%Check if the path to save exist, if it false create it
+   mkdir(path)
 end
-
-% Begin processing. Use lower(type) to protect against input being
-% capitalized. 
-switch lower(type)
-case 'uniform'
-   R = a + (b - a)*rand(M, N);
-case 'gaussian'
-   R = a + b*randn(M, N);
-case 'salt & pepper'
-   if nargin <= 3
-      a = 0.05; b = 0.05;
-   end
-   % Check to make sure that Pa + Pb is not > 1.
-   if (a + b) > 1
-      error('The sum Pa + Pb must not exceed 1.')
-   end
-   R(1:M, 1:N) = 0.5;
-   % Generate an M-by-N array of uniformly-distributed random numbers
-   % in the range (0, 1). Then, Pa*(M*N) of them will have values <=
-   % a. The coordinates of these points we call 0 (pepper
-   % noise). Similarly, Pb*(M*N) points will have values in the range
-   % > a & <= (a + b).  These we call 1 (salt noise). 
-   X = rand(M, N);
-   c = find(X <= a);
-   R(c) = 0;
-   u = a + b;
-   c = find(X > a & X <= u);
-   R(c) = 1;
-case 'lognormal'
-   if nargin <= 3
-      a = 1; b = 0.25;
-   end
-   R = exp(b*randn(M, N) + a);
-case 'rayleigh'
-   R = a + (-b*log(1 - rand(M, N))).^0.5;
-case 'exponential'
-   if nargin <= 3
-      a = 1;
-   end
-   if a <= 0
-      error('Parameter a must be positive for exponential type.')
-   end
-   k = -1/a;
-   R = k*log(1 - rand(M, N));
-case 'erlang'
-   if nargin <= 3
-      a = 2; b = 5;
-   end
-   if (b ~= round(b) | b <= 0)
-      error('Param b must be a positive integer for Erlang.')
-   end
-   k = -1/a;
-   R = zeros(M, N);
-   for j = 1:b         
-      R = R + k*log(1 - rand(M, N));
-   end
-otherwise
-   error('Unknown distribution type.')
+saveas(n_hist_fig,fullfile(path, 'noiseHist.png'));%Save histogram
+n_image8 = setObject(n_image8, 'object1.png', 360, 360);
+imwrite(n_image8, fullfile(path, 'imgWithObject1.png'));%Save new IMG with Object 1 in center
+n_image8_big = imresize(n_image8, 2, 'nearest');%Resize img use formul size*2=img type nearest
+n_image8_small = imresize(n_image8, 0.5, 'bilinear');%Resize img use formul size*0.5=img type bilinear
+imwrite(n_image8_big, fullfile(path, 'imgBig.png'));%Save big variant of img
+imwrite(n_image8_small, fullfile(path, 'imgSmall.png'));%Save small varaint of img
+n_image8 = genImgWithNoise(zeros(800), 1);
+n_image8 = setObject(n_image8, 'object2.png', 0, 0);%For more information watch "Functions" in the end of the file
+n_image8 = setObject(n_image8, 'object3.png', 720, 720);%For more information watch "Functions" in the end of the file
+n_image8_flop = fliplr(n_image8);%Change pixels from left to right
+imwrite(n_image8_flop, fullfile(path, 'imgFlop.png'));%Save fliped from left to right Img
+n_image8_flip = flipud(n_image8);%Change pixels from up to down
+imwrite(n_image8_flip, fullfile(path, 'imgFlip.png'));%Save fliped from up to down Img
+n_image8_rotate = imrotate(n_image8,-45);%Rotate IMG to -45 dec.
+imwrite(n_image8_rotate, fullfile(path, 'imgRotate-45.png'));%Save rotated IMG
+n_image8_rotate = imrotate(n_image8,45);%Rotate IMG to 45 dec.
+imwrite(n_image8_rotate, fullfile(path, 'imgRotate45.png'));%Save rotated IMG
+n_image_RGB = imread('space.png');%Load random image from internet
+n_image = rgb2gray(n_image_RGB);%Cray IMG to use next in 14 ex.
+n_image8 = im2uint8(n_image);%Img to 8 bit
+n_image_croped = imcrop(n_image8,[600 0 799 799]);%Crop image from left top corner
+n_image_bright = n_image_croped/4;%Matrix/4 for change bright
+n_image8 = n_image_bright;
+n_image8 = setObject(n_image8, 'object2.png', 0, 0);
+n_image8 = setObject(n_image8, 'object3.png', 720, 720);
+n_image8_noise = genImgWithNoise(n_image8, 0.5);
+imwrite(n_image8_noise, fullfile(path, 'picWithNoiseandObjects.png'));%Save edited space
+n_image8_nega = imadjust(n_image8_noise, [0 1], [1 0]);
+imwrite(n_image8_nega, fullfile(path, 'picNega.png'));%Save negative space
+n_image_v2 = setObject(n_image_bright, 'object1.png', 360, 360);
+n_image_v2 = genImgWithNoise(n_image_v2, 0.5);
+imwrite(n_image_v2, fullfile(path, 'picWithNoiseandObject1.png'));%Save space
+n_image_v3 = n_image_v2 - n_image8_noise;
+imwrite(n_image_v3, fullfile(path, 'pic-pic.png'));%Save space
+function image8WithObject = setObject(imgForEdit, fileWithObject, iPoz, jPoz)
+        object = im2double(imread(fileWithObject));%Load img of object from file and convert to 2 bit
+        for i = 1:size(object, 1)%Loop for print object on 8 bit img (idea github.com/iuriinesterov)
+            for j = 1:size(object, 2)
+                if (object(i,j) < 1)
+                    imgForEdit(i+iPoz, j+jPoz) = object(i,j);%iPoz and jPoz this is offset from left top corner of original IMG
+                end
+            end
+        end
+        image8WithObject = imgForEdit;
 end
+function image8WithNoise = genImgWithNoise(imgForEdit, density)
+        for x = 1:density*numel(imgForEdit)
+            imgForEdit(randi(800), randi(800)) = rand(1); 
+        end
+        imgForEdit = mat2gray(imgForEdit);%Matrix to Gray IMG
+        image8WithNoise = im2uint8(imgForEdit);%Gray IMG to 8 bit IMG
 end
